@@ -4,6 +4,9 @@ import bcrypt from 'bcrypt';
 
 const  { Schema,model} = mongoose();
 
+
+
+// for storing user data
 const userSchema = new Schema({
     username:{ 
         type:String,
@@ -52,7 +55,7 @@ const userSchema = new Schema({
 },{timestamps:true});
 
 
-
+//pre middleware for hashing password
 userSchema.pre('save',async function (next){
     if(this.isModified('password')){
         next();
@@ -60,11 +63,21 @@ userSchema.pre('save',async function (next){
     this.password=bcrypt.hash(this.password,10);
 })
 
+// for  password hashing bcrypt has method compare and hash
+//syntax: bcrypt.compare(password,hash,callback) 
+//bcrypt.hash(password,salt,callback)
+// for password hashing
 userSchema.methods.isPasswordCorrect= 
 async  function (password){
-    return await bcrypt.compare(password,this.password);
+     await bcrypt.compare(password,this.password,(err,result)=>{ 
+        if(err) return err;
+        return result ;
+    });
 }
 
+
+// for generating token with jwt 
+//jwt.sign(payload,secret,options)
 userSchema.methods.generateToken=
 function (){ 
     return jwt.sign(
@@ -88,6 +101,9 @@ function (){
         {expiresIn:'1d'}
     )
 }
+
+
+
 const User= model('User',userSchema);
 
 
