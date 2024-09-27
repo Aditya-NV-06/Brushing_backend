@@ -1,7 +1,7 @@
 
 import { application } from "express";
-import connect from "./db/index.js";
 
+import connect from "./db/index.js";
 
 
 

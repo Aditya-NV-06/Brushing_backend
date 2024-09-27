@@ -6,12 +6,19 @@ const application= express();
 
 application.use(cors(
     {
-        origin: "http://localhost:3000",
+        origin: "http://localhost:8080/api/v1/users",
         credentials: true
     }
 ));
 
 
 application.use(express.json({limit: '50kb'}));
-
+application.use(express.urlencoded({extended: true}));
 application.use(cookieParser());
+
+import userRouter from './routes/user.route.js';       
+
+
+application.use("/api/v1/users",userRouter);
+
+
