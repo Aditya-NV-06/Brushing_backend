@@ -74,6 +74,39 @@ const register = asyncHandler(async (err,req, res, next) => {
 })
 
 
+const loginUser = asyncHandler(async (req,res,next) => {
+  const {email,password} = req.body;
+ //check if all fields are filled
+  if(!email || !password){
+    throw new ApiError(400,'Please fill all fields');
+  }
+  //check if the email is valid
+  const user = await User.findOne({
+    $or : [{email},{username}]
+  }
+  );       
+//check if the user exists
+  if(!user){            
+    throw new ApiError(400,'User not found');
+  }
+    //check if the password is correct
+  const isMatch = await user.isPasswordCorrect(password);
+
+  if(!isMatch){
+    throw new ApiError(400,'Invalid credentials');
+  }
+
+  const token = user.generateToken();
+  const refreshToken = user.generateRefreshToken();
+
+  user.refreshTokens.push(refreshToken);
+   await user.save({ validateBeforeSave:false });
+
+  return res.status(200).json(
+    new ApiResponse(200,{token,refreshToken},"User logged in successfully")
+  )
+}
+)
 
 
-export default register
+export default {register,loginUser};
